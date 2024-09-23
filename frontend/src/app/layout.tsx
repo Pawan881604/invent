@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import {NextUIProvider} from '@nextui-org/react'
+import { NextUIProvider } from '@nextui-org/react'
 import { Inter } from "next/font/google";
 import "./globals.css";
 import DashboardWrapper from "./dashboardWrapper";
@@ -19,9 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <NextUIProvider>
-        <DashboardWrapper>{children}</DashboardWrapper>
-      </NextUIProvider>
+        <NextUIProvider>
+          {children}
+        </NextUIProvider>
       </body>
     </html>
   );
