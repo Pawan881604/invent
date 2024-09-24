@@ -1,23 +1,56 @@
 "use client"
 import { FbIcon } from '@/components/common/svg-icons/fb_icon'
 import { GoogleIcon } from '@/components/common/svg-icons/google_icon'
-import { login } from '@/types/auth_type'
+import { useLoginUserMutation } from '@/state/usersApi'
+import type { Login } from '@/types/auth_type'
 import { login_schema } from '@/zod-schemas/auth_zod_schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@nextui-org/react'
+import { toast } from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import useNotification from '@/components/common/Notification'
 
 
 const Login = () => {
     const [isVisible, setIsVisible] = useState(false);
+    const { notifyError } = useNotification();
     const toggleVisibility = () => setIsVisible(!isVisible);
-    const { control, handleSubmit, formState: { errors } } = useForm<login>({ resolver: zodResolver(login_schema) })
-    const onSubmit = (data: login) => {
-        console.log(data)
-    }
+    const { control, handleSubmit, formState: { errors } } = useForm<Login>({ resolver: zodResolver(login_schema) })
+
+    const [loginUser, { data, error, isLoading }] = useLoginUserMutation();
+
+    const onSubmit = async (data: Login) => {
+        try {
+            const response = await loginUser(data);
+    
+            // Check if the response indicates an error
+            if (response.error) {
+                // Use TypeScript's type narrowing to check for FetchBaseQueryError
+                if ('status' in response.error) {
+                    // This indicates it's a FetchBaseQueryError
+                    const errorMessage = response.error.data?.message || "An unexpected error occurred.";
+                    toast.error(errorMessage); // Show the error toast
+                } else {
+                    // If it's a SerializedError
+                    toast.error("An unexpected error occurred."); // Handle accordingly
+                }
+            } else {
+                // Handle successful login (if needed)
+                console.log("Login successful:", response);
+                toast.success("Login Successful!");
+            }
+        } catch (err) {
+            console.log(err); // Log the error for debugging
+            toast.error("An unexpected error occurred."); // Show a general error toast
+        }
+    };
+    
+    
+
+
 
     return (
         <div className='bg-light_color min-h-screen'>
@@ -104,7 +137,7 @@ const Login = () => {
                             <Link href={'/auth/forgot-password'} className='text-base'>Forgot password</Link>
                         </div>
                         <div className='flex justify-center my-6'>
-                            <Button type='submit' className='bg-black text-white w-full'>Sign in</Button>
+                            <Button type='submit' isLoading={isLoading} className='bg-black text-white w-full'>Sign in</Button>
                         </div>
                         <div className='text-end'>
                             <p>Don't have an account yet?    <Link href={'/auth/sign-up'} className='text-base text-black'>Sign up</Link>

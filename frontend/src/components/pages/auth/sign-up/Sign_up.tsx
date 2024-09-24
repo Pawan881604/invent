@@ -1,7 +1,9 @@
 "use client"
 import { FbIcon } from '@/components/common/svg-icons/fb_icon'
 import { GoogleIcon } from '@/components/common/svg-icons/google_icon'
-import { sign_up } from '@/types/auth_type'
+import { generate32BitUUID } from '@/lib/service/generate32BitUUID'
+import { useSign_up_userMutation } from '@/state/usersApi'
+import type { Sign_up } from '@/types/auth_type'
 import { sign_up_schema } from '@/zod-schemas/auth_zod_schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@nextui-org/react'
@@ -14,10 +16,18 @@ import { Controller, useForm } from 'react-hook-form'
 const Sign_up = () => {
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
-    const { control, handleSubmit, formState: { errors } } = useForm<sign_up>({ resolver: zodResolver(sign_up_schema) })
-    const onSubmit = (data: sign_up) => {
-        console.log(data)
-    }
+    const { control, handleSubmit, formState: { errors } } = useForm<Sign_up>({ resolver: zodResolver(sign_up_schema) })
+    const [sign_up_user] = useSign_up_userMutation();
+
+    const onSubmit = async (data: Sign_up) => {
+        const user_data: Sign_up = { ...data, uuid: generate32BitUUID() };
+        try {
+            const response = await sign_up_user(user_data).unwrap(); // Call the mutation with data
+            console.log("Sign up successful:", response);
+        } catch (error) {
+            console.error("Sign up failed:", error);
+        }
+    };
 
     return (
         <div className='bg-light_color min-h-screen'>

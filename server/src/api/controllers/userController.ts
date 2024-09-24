@@ -16,6 +16,7 @@ class UserController {
 
   login = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
+      console.log(req.body)
       const { email, password } = req.body;
       const user = await this.userService.authenticateUser(
         email,

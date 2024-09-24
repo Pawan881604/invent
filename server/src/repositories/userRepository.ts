@@ -3,6 +3,7 @@ import User from "../models/userModel";
 class UserRepository {
   async createUser(userData: any) {
     const user = new User(userData);
+ 
     return await user.save();
   }
 
