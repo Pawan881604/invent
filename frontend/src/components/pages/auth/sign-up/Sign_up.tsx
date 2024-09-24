@@ -9,25 +9,36 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import Cookies from 'universal-cookie'
 
 
 const Sign_up = () => {
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
+    const router = useRouter();
     const { control, handleSubmit, formState: { errors } } = useForm<Sign_up>({ resolver: zodResolver(sign_up_schema) })
-    const [sign_up_user] = useSign_up_userMutation();
+    const [sign_up_user, { data, isLoading, error, isSuccess }] = useSign_up_userMutation();
 
     const onSubmit = async (data: Sign_up) => {
         const user_data: Sign_up = { ...data, uuid: generate32BitUUID() };
-        try {
-            const response = await sign_up_user(user_data).unwrap(); // Call the mutation with data
-            console.log("Sign up successful:", response);
-        } catch (error) {
-            console.error("Sign up failed:", error);
-        }
+        await sign_up_user(user_data).unwrap(); // Call the mutation with data
+
     };
+    useEffect(() => {
+        if (error) {
+            const errorMessage = (error as { data?: { message?: string } }).data?.message || "An unexpected error occurred.";
+            toast.error(errorMessage); // Show the error toast
+        }
+        if (isSuccess) {
+            router.push('/auth/sign-in');
+            toast.success('User creates successfully'); // Show the error toast
+        }
+    }, [error, isSuccess])
+
 
     return (
         <div className='bg-light_color min-h-screen'>
@@ -134,7 +145,7 @@ const Sign_up = () => {
                             )}
                         </div>
                         <div className='flex justify-center my-6'>
-                            <Button type='submit' className='bg-black text-white w-full'>Sign up</Button>
+                            <Button type='submit' isLoading={isLoading} className='bg-black text-white w-full'>Sign up</Button>
                         </div>
                         <div className='text-end'>
                             <p>Have an account?    <Link href={'/auth/sign-in'} className='text-base text-black'>Sign in</Link>

@@ -1,9 +1,17 @@
 import User from "../models/userModel";
+import { generateRandomId } from "../utils/generateRandomId";
 
 class UserRepository {
   async createUser(userData: any) {
-    const user = new User(userData);
- 
+    const { email, password, name, uuid } = userData;
+    const rendom_id = generateRandomId();
+    const data = {
+      user_id: `user_${rendom_id}_${uuid}`,
+      email,
+      password,
+      name,
+    };
+    const user = new User(data);
     return await user.save();
   }
 

@@ -10,13 +10,13 @@ class UserController {
   register = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
       const user = await this.userService.registerUser(req.body, next);
-      res.status(201).json({ user });
+      res.status(201).json({ succes: true, user });
     }
   );
 
   login = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log(req.body)
+      console.log(req.body);
       const { email, password } = req.body;
       const user = await this.userService.authenticateUser(
         email,
