@@ -6,51 +6,42 @@ import type { Login } from '@/types/auth_type'
 import { login_schema } from '@/zod-schemas/auth_zod_schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@nextui-org/react'
-import { toast } from 'react-hot-toast';
+import { toast, ToastBar } from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import useNotification from '@/components/common/Notification'
-
+import Cookies from "universal-cookie";
+import { useRouter } from 'next/navigation'
 
 const Login = () => {
     const [isVisible, setIsVisible] = useState(false);
-    const { notifyError } = useNotification();
     const toggleVisibility = () => setIsVisible(!isVisible);
+    const router = useRouter();
     const { control, handleSubmit, formState: { errors } } = useForm<Login>({ resolver: zodResolver(login_schema) })
-
-    const [loginUser, { data, error, isLoading }] = useLoginUserMutation();
-
+    const [loginUser, { data, error, isSuccess, isLoading }] = useLoginUserMutation();
     const onSubmit = async (data: Login) => {
-        try {
-            const response = await loginUser(data);
-    
-            // Check if the response indicates an error
-            if (response.error) {
-                // Use TypeScript's type narrowing to check for FetchBaseQueryError
-                if ('status' in response.error) {
-                    // This indicates it's a FetchBaseQueryError
-                    const errorMessage = response.error.data?.message || "An unexpected error occurred.";
-                    toast.error(errorMessage); // Show the error toast
-                } else {
-                    // If it's a SerializedError
-                    toast.error("An unexpected error occurred."); // Handle accordingly
-                }
-            } else {
-                // Handle successful login (if needed)
-                console.log("Login successful:", response);
-                toast.success("Login Successful!");
-            }
-        } catch (err) {
-            console.log(err); // Log the error for debugging
-            toast.error("An unexpected error occurred."); // Show a general error toast
+        await loginUser(data);
+    }
+    useEffect(() => {
+        if (error) {
+            const errorMessage = (error as { data?: { message?: string } }).data?.message || "An unexpected error occurred.";
+            toast.error(errorMessage); // Show the error toast
         }
-    };
-    
-    
+        if (isSuccess) {
+            const token: string = data.token;
+            if (token) {
+                const cookies = new Cookies(null, { path: "/" });
+                const options = {
+                    path: "/", // cookie path
+                };
 
-
+                cookies.set("auth_token", token, options);
+            }
+            router.push('/dashboard');
+            toast.success('Welcome'); // Show the error toast
+        }
+    }, [error, isSuccess])
 
     return (
         <div className='bg-light_color min-h-screen'>
