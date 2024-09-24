@@ -1,6 +1,7 @@
 "use client"
 import { FbIcon } from '@/components/common/svg-icons/fb_icon'
 import { GoogleIcon } from '@/components/common/svg-icons/google_icon'
+import { firebaseAuth, GoogleAuthProvider } from '@/lib/firebase'
 import { generate32BitUUID } from '@/lib/service/generate32BitUUID'
 import { useSign_up_userMutation } from '@/state/usersApi'
 import type { Sign_up } from '@/types/auth_type'
@@ -40,6 +41,33 @@ const Sign_up = () => {
     }, [error, isSuccess])
 
 
+
+
+
+
+
+    const handleLogin = async () => {
+        try {
+            const { user } = await firebaseAuth.signInWithPopup(GoogleAuthProvider);
+            const idToken = await user?.getIdToken(); // Use this for ID token
+
+            if (idToken) {
+
+                const cookies = new Cookies(null, { path: "/" });
+                const options = {
+                    path: "/", // cookie path
+                };
+                cookies.set("auth_token", idToken, options);
+                router.push('/dashboard');
+            }
+            // Optionally, get the JWT token here if needed
+
+            // You can now send the token to your backend if needed
+        } catch (error) {
+            console.error("Login failed", error);
+        }
+    };
+
     return (
         <div className='bg-light_color min-h-screen'>
             <div className='flex justify-center items-center max-w-sm m-auto min-h-screen'>
@@ -50,7 +78,7 @@ const Sign_up = () => {
                     </div>
                     <div className='flex items-center justify-center mb-5'>
                         <div className='w-1/2 text-center'>
-                            <Button variant="light" isIconOnly aria-label="google" className='w-32 border border-gray-100'>
+                            <Button variant="light" isIconOnly aria-label="google" onClick={handleLogin} className='w-32 border border-gray-100'>
                                 <GoogleIcon />
                             </Button>
                         </div>
