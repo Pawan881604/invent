@@ -1,6 +1,7 @@
 "use client"
 import React from "react";
 import {
+  Selection,
   Spinner,
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import { vendr_list as Vendor, vendor_Column } from "@/types/Vendor_type";
 import TableBottomContent from "./TableBottomContent";
 import TableTopContent from "./TableTopContent";
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["vendor_name", "phone","gstin","state", "status", "actions"];
 
 interface Props {
   data: Vendor[];
@@ -48,6 +49,15 @@ const ListTable: React.FC<Props> = ({
   setPage, columns,form_open
 }) => {
   const pages = Math.ceil(data_length / Number(resultPerpage));
+  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+
+
+
+  const headerColumns = React.useMemo(() => {
+    if (visibleColumns === "all") return columns;
+
+    return columns.filter((column:any) => Array.from(visibleColumns).includes(column.uid));
+  }, [visibleColumns]);
 
   return (
     <Table aria-label="Example table with custom cells"
@@ -68,10 +78,12 @@ const ListTable: React.FC<Props> = ({
           data_length={data_length}
           setRowsPerPage={setRowsPerPage}
           form_open={form_open}
+          setVisibleColumns={setVisibleColumns}
+          visibleColumns={visibleColumns}
         />}
       topContentPlacement="outside"
     >
-      <TableHeader columns={columns}>
+      <TableHeader columns={headerColumns}>
         {(column: vendor_Column) => (
           <TableColumn
             key={column.uid}

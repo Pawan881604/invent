@@ -93,7 +93,7 @@ const Vendor_list: React.FC<list_props> = ({ set_open }) => {
             );
         case "actions":
           return (
-            <div className="relative flex items-center gap-2">
+            <div className="relative flex items-end gap-2">
               <Tooltip content="Details">
                 <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                   <Eye />

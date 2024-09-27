@@ -13,6 +13,8 @@ interface props {
     setRowsPerPage: (value: number) => void;
     data_length: number;
     form_open:(vlaue:boolean)=>void
+    visibleColumns:any;
+    setVisibleColumns:any;
 }
 const statusOptions = [
     { label: "All", value: "all" },
@@ -22,9 +24,11 @@ const statusOptions = [
 const TableTopContent: React.FC<props> = ({
     filterValue,
     statusFilter,
-    setFilterValue, setPage, setStatusFilter, columns, setRowsPerPage, data_length,form_open
+    setFilterValue, setPage, setStatusFilter, columns, setRowsPerPage, data_length,form_open,
+    visibleColumns,setVisibleColumns
 }) => {
 
+    
 
     const onSearchChange = React.useCallback((value?: string) => {
         if (value) {
@@ -74,10 +78,12 @@ const TableTopContent: React.FC<props> = ({
                             </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                            disallowEmptySelection
-                            aria-label="Table Columns"
-                            closeOnSelect={false}
-                            selectionMode="multiple"
+                             disallowEmptySelection
+                             aria-label="Table Columns"
+                             closeOnSelect={false}
+                             selectedKeys={visibleColumns}
+                             selectionMode="multiple"
+                             onSelectionChange={setVisibleColumns}
                         >
                             {columns.map((column: any) => (
                                 <DropdownItem key={column.uid} className="capitalize">
