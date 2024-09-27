@@ -19,12 +19,41 @@ export const vendorApi = createApi({
         body: data,
       }),
     }),
-    getAllVendors: build.query<Vendors[], string | void>({
-      query: (search) => ({
-        url: "/api/vendor/all-vendors",
-        params: search ? { search } : {},
-        method: "GET",
-      }),
+    getAllVendors: build.query<
+      Vendors[],
+      {
+        keyword?: string;
+        status?: string;
+        rowsPerPage?: number;
+        page?: number;
+      } | void
+    >({
+      query: (filters) => {
+        // Initialize the query params object
+        const params: Record<string, string | number> = {};
+
+        // Add filters to the query parameters if they are present
+        if (filters) {
+          if (filters.keyword) {
+            params.keyword = filters.keyword;
+          }
+          if (filters.status && filters.status !== "all") {
+            params.status = filters.status;
+          }
+          if (filters.rowsPerPage) {
+            params.rowsPerPage = filters.rowsPerPage; // Convert number to string
+          }
+          if (filters.page) {
+            params.page = filters.page; // Convert number to string
+          }
+        }
+
+        return {
+          url: "/api/vendor/all-vendors",
+          params, // Use the dynamically constructed params
+          method: "GET",
+        };
+      },
     }),
   }),
 });

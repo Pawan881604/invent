@@ -1,4 +1,5 @@
 import VendorModel from "../models/vendorModel";
+import ApiFeatures from "../utils/apiFeatuers";
 import { generateRandomId } from "../utils/generateRandomId";
 
 class VendorRepository {
@@ -38,8 +39,18 @@ class VendorRepository {
   async findByGstin(gstin: string) {
     return await VendorModel.findOne({ gstin });
   }
-  async all_vendors() {
-    return await VendorModel.find();
+  async all_vendors(query: any) {
+    const resultPerpage = Number(query.rowsPerPage);
+    const apiFeatures = new ApiFeatures(VendorModel.find(), query);
+    apiFeatures.search().filter().sort().pagination(resultPerpage);
+    const result = await apiFeatures.exec();
+    return result;
+  }
+  async data_counter(query: any) {
+    const apiFeatures = new ApiFeatures(VendorModel.find(), query);
+    apiFeatures.search().filter();
+    const result = await apiFeatures.exec();
+    return result.length;
   }
 }
 export default VendorRepository;

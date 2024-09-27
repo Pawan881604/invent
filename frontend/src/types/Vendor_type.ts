@@ -17,7 +17,7 @@ export interface vendr_form {
 
 export interface vendr_list {
   _id: string;
-  name: string;
+  vendor_name: string;
   phone: string;
   email: string;
   company: string;
@@ -26,6 +26,7 @@ export interface vendr_list {
   address_line_2: string;
   pin_code: string;
   state: string;
+  status:string;
   city: string;
   country: string;
   linking_customer: string;
@@ -33,4 +34,15 @@ export interface vendr_list {
 
 export interface Vendor_Data {
   token: string;
+}
+
+export interface Get_VendorResponse {
+  vendor: vendr_list[]; // Make sure this matches your expected type
+  resultPerpage: number; // Add any other properties you expect
+  data_counter: number; // Add any other properties you expect
+}
+
+export interface vendor_Column {
+  name: string;
+  uid: string;
 }

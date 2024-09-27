@@ -24,8 +24,11 @@ class VendorService {
 
     return await this.vendorRepository.createVendor(vendordata);
   }
-  async all_vendors(vendorData: any, next: NextFunction) {
-    return await this.vendorRepository.all_vendors();
+  async all_vendors(query:any) {
+    return await this.vendorRepository.all_vendors(query);
+  }
+  async data_counter(query:any) {
+    return await this.vendorRepository.data_counter(query);
   }
 }
 export default VendorService;

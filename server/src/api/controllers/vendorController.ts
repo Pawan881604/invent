@@ -18,12 +18,18 @@ class VendorController {
   );
   all_vendors = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
-      const vendor = await this.vendorService.all_vendors(req.body, next);
+      const query = req.query;
 
+      const resultPerpage = Number(query.rowsPerPage);
+      console.log(query)
+      const vendor = await this.vendorService.all_vendors(query);
+      const data_counter = await this.vendorService.data_counter(query);
       if (vendor) {
         return res.status(201).json({
           success: true,
           vendor,
+          resultPerpage,
+          data_counter
         });
       }
     }

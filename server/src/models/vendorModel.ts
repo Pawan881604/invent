@@ -82,7 +82,7 @@ const vendorSchema: Schema<IVendor> = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: "Active", // Active by default
+      default: "active", // Active by default
     },
     isActive: {
       type: Boolean,
