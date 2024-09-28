@@ -16,10 +16,10 @@ import TableTopContent from "./TableTopContent";
 
 const INITIAL_VISIBLE_COLUMNS = ["vendor_name", "phone","gstin","state", "status", "actions"];
 
-interface Props {
-  data: Vendor[];
+interface TableProps<T> {
+  data: T[];
   loading: boolean;
-  renderCell: (vendor: Vendor, columnKey: React.Key) => React.ReactNode;
+  renderCell: (item: T, columnKey: React.Key) => React.ReactNode;
   filterValue: string;
   setFilterValue: (value: string) => void;
   statusFilter: string;
@@ -29,12 +29,13 @@ interface Props {
   data_length: number;
   page: number;
   setPage: (value: number) => void;
-  columns: any;
-  form_open:(value:boolean)=>void;
+  columns: any; // You may want to further type this based on your column definitions
+  form_open: (value: boolean) => void;
 }
-
-
-const ListTable: React.FC<Props> = ({
+interface Identifiable {
+  _id: string;
+}
+const ListTable = <T extends Identifiable>({
   data,
   renderCell,
   loading,
@@ -47,7 +48,7 @@ const ListTable: React.FC<Props> = ({
   data_length,
   page,
   setPage, columns,form_open
-}) => {
+}: TableProps<T>) => {
   const pages = Math.ceil(data_length / Number(resultPerpage));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
 
@@ -65,7 +66,7 @@ const ListTable: React.FC<Props> = ({
       bottomContent={<TableBottomContent page={page} pages={pages} setPage={setPage} />}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "min-h-[500px]",
+        wrapper: "min-h-[600px]",
       }}
       topContent={
         <TableTopContent

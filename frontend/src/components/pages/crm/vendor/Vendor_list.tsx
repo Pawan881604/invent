@@ -122,7 +122,7 @@ const Vendor_list: React.FC<list_props> = ({ set_open }) => {
     <div>
       {/* <Test set_open={set_open} data={data} />
        */}
-      <List_table
+      <List_table<vendr_list>
         data={vendors.vendor}
         loading={isLoading}
         columns={columns}

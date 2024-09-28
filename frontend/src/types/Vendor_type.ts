@@ -30,6 +30,8 @@ export interface vendr_list {
   city: string;
   country: string;
   linking_customer: string;
+  resultPerpage: number;
+  data_counter: number;
 }
 
 export interface Vendor_Data {
