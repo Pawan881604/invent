@@ -12,9 +12,10 @@ interface props {
     columns: any;
     setRowsPerPage: (value: number) => void;
     data_length: number;
-    form_open:(vlaue:boolean)=>void
-    visibleColumns:any;
-    setVisibleColumns:any;
+    form_open: (vlaue: boolean) => void
+    visibleColumns: any;
+    setVisibleColumns: any;
+    set_page_status: (value: string) => void;
 }
 const statusOptions = [
     { label: "All", value: "all" },
@@ -24,11 +25,11 @@ const statusOptions = [
 const TableTopContent: React.FC<props> = ({
     filterValue,
     statusFilter,
-    setFilterValue, setPage, setStatusFilter, columns, setRowsPerPage, data_length,form_open,
-    visibleColumns,setVisibleColumns
+    setFilterValue, setPage, setStatusFilter, columns, setRowsPerPage, data_length, form_open,
+    visibleColumns, setVisibleColumns,set_page_status
 }) => {
 
-    
+
 
     const onSearchChange = React.useCallback((value?: string) => {
         if (value) {
@@ -78,12 +79,12 @@ const TableTopContent: React.FC<props> = ({
                             </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                             disallowEmptySelection
-                             aria-label="Table Columns"
-                             closeOnSelect={false}
-                             selectedKeys={visibleColumns}
-                             selectionMode="multiple"
-                             onSelectionChange={setVisibleColumns}
+                            disallowEmptySelection
+                            aria-label="Table Columns"
+                            closeOnSelect={false}
+                            selectedKeys={visibleColumns}
+                            selectionMode="multiple"
+                            onSelectionChange={setVisibleColumns}
                         >
                             {columns.map((column: any) => (
                                 <DropdownItem key={column.uid} className="capitalize">
@@ -92,13 +93,23 @@ const TableTopContent: React.FC<props> = ({
                             ))}
                         </DropdownMenu>
                     </Dropdown>
-                    <Button color="primary" endContent={<PlusIcon />} onClick={()=>form_open(true)}>
+                    <Button color="primary" endContent={<PlusIcon />} onClick={() => form_open(true)}>
                         Add New
                     </Button>
                 </div>
             </div>
             <div className="flex justify-between items-center">
-                <span className="text-default-400 text-small">Total {data_length} Vendors</span>
+                <div className='flex items-center gap-4'>
+                    <span className="text-default-400 text-small">Total {data_length} Vendors</span>
+
+                    <Button size="sm" onClick={()=> set_page_status("yes")} className='bg-white text-default-400 text-small'>
+                        Publish
+                    </Button>
+                    <Button size="sm" onClick={()=> set_page_status("no")} className='bg-white text-default-400 text-small'>
+                        Trash
+                    </Button>
+
+                </div>
                 <label className="flex items-center text-default-400 text-small">
                     Rows per page:
                     <select

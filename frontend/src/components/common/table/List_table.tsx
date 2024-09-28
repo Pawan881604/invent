@@ -31,6 +31,7 @@ interface TableProps<T> {
   setPage: (value: number) => void;
   columns: any; // You may want to further type this based on your column definitions
   form_open: (value: boolean) => void;
+  set_page_status: (value: string) => void;
 }
 interface Identifiable {
   _id: string;
@@ -47,7 +48,7 @@ const ListTable = <T extends Identifiable>({
   setRowsPerPage,
   data_length,
   page,
-  setPage, columns,form_open
+  setPage, columns,form_open,set_page_status
 }: TableProps<T>) => {
   const pages = Math.ceil(data_length / Number(resultPerpage));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -81,6 +82,7 @@ const ListTable = <T extends Identifiable>({
           form_open={form_open}
           setVisibleColumns={setVisibleColumns}
           visibleColumns={visibleColumns}
+          set_page_status={set_page_status}
         />}
       topContentPlacement="outside"
     >

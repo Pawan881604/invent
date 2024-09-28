@@ -1,16 +1,18 @@
 import List_table from "@/components/common/table/List_table";
-import { useGetAllVendorsQuery } from "@/state/vendorApi";
+import { useGetAllVendorsQuery, useRemoveVendorMutation } from "@/state/vendorApi";
 import debounce from 'lodash.debounce';
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Chip,
   ChipProps,
+  CircularProgress,
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { DeleteIcon, Edit, Eye } from "lucide-react";
+import { Trash2, Edit, Eye, RotateCcw, Eraser } from "lucide-react";
 
 import { vendr_list, Get_VendorResponse, vendor_Column } from "@/types/Vendor_type";
+import toast from "react-hot-toast";
 
 interface list_props {
   set_open: (value: boolean) => void;
@@ -19,7 +21,7 @@ interface list_props {
 
 
 
-const columns:vendor_Column[] = [
+const columns: vendor_Column[] = [
   { name: "Name", uid: "vendor_name" },
   { name: "Phone", uid: "phone" },
   { name: "Email", uid: "email" },
@@ -42,24 +44,38 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const Vendor_list: React.FC<list_props> = ({ set_open }) => {
   const [filterValue, setFilterValue] = useState<string>("");
+  const [page_status, set_page_status] = useState<string>("yes");
   const [debouncedFilterValue, setDebouncedFilterValue] = useState<string>(filterValue);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
 
+
+  const [removeVendor, { error: delete_error, isLoading: delete_loading, isSuccess: delete_success }] = useRemoveVendorMutation();
   // Debounce the filter value to avoid excessive API calls
   const handleDebouncedFilter = useMemo(
     () => debounce((value) => setDebouncedFilterValue(value), 300),
     []
   );
+
   useEffect(() => {
     handleDebouncedFilter(filterValue);
   }, [filterValue, handleDebouncedFilter]);
+  useEffect(() => {
+    if (delete_error) {
+      const errorMessage =
+        (delete_error as { data?: { message?: string } }).data?.message ||
+        "An unexpected error occurred.";
+      toast.error(errorMessage); // Show the error toast
+    }
+    if (delete_success) {
+      toast.success("Vendor Delete successfuly"); // Show the error toast
+    }
 
-
+  }, [delete_error, delete_success, toast])
   // Fetch vendors only when debouncedFilterValue has a valid value
   const { data, error, isLoading } = useGetAllVendorsQuery(
-    { keyword: debouncedFilterValue, status: statusFilter, rowsPerPage: rowsPerPage, page: page }
+    { is_active: page_status, keyword: debouncedFilterValue, status: statusFilter, rowsPerPage: rowsPerPage, page: page }
   );
   const response: Get_VendorResponse | undefined = data as Get_VendorResponse | undefined;
   const vendors: Get_VendorResponse = useMemo(() => {
@@ -69,9 +85,18 @@ const Vendor_list: React.FC<list_props> = ({ set_open }) => {
     return { vendor, resultPerpage, data_counter }
   }, [response]);
 
+
+
+
   const renderCell = React.useCallback(
     (vendor: vendr_list, columnKey: React.Key) => {
       const cellValue = vendor[columnKey as keyof vendr_list];
+
+
+      const deleteHandler = async (id: string) => {
+        await removeVendor({ id })
+      }
+
 
       switch (columnKey) {
         case "vendor_name":
@@ -85,31 +110,40 @@ const Vendor_list: React.FC<list_props> = ({ set_open }) => {
               {vendor.vendor_name}
             </User>
           );
-          case "status":
-            return (
-              <Chip className="capitalize" color={statusColorMap[vendor.status.toLocaleLowerCase()]} size="sm" variant="flat">
-                {cellValue}
-              </Chip>
-            );
+        case "status":
+          return (
+            <Chip className="capitalize" color={statusColorMap[vendor.status.toLocaleLowerCase()]} size="sm" variant="flat">
+              {cellValue}
+            </Chip>
+          );
         case "actions":
           return (
-            <div className="relative flex items-end gap-2">
-              <Tooltip content="Details">
-                <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                  <Eye />
-                </span>
-              </Tooltip>
+            <div className="relative flex justify-end gap-2">
+
               <Tooltip content="Edit user">
-                <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                  <Edit />
+                <span className="text-sm text-default-400 cursor-pointer active:opacity-50">
+                  {page_status =="yes" ?(
+                    <Edit size={20} />
+                  ) : (
+                    <RotateCcw size={20} />
+                  )}
                 </span>
               </Tooltip>
+
               <Tooltip color="danger" content="Delete user">
-                <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                  <DeleteIcon />
+                <span className="text-sm text-danger cursor-pointer active:opacity-50">
+                  {delete_loading ? (
+                    <CircularProgress size="sm" aria-label="Loading..." />
+                  ) : page_status === 'yes' ? (
+                    <Trash2 onClick={() => deleteHandler(vendor._id)} size={20} />
+                  ) : (
+                    <Eraser onClick={() => deleteHandler(vendor._id)} size={20} />
+                  )}
                 </span>
               </Tooltip>
-            </div>
+
+
+            </div >
           );
         default:
           return cellValue;
@@ -136,6 +170,7 @@ const Vendor_list: React.FC<list_props> = ({ set_open }) => {
         filterValue={filterValue}
         setFilterValue={setFilterValue}
         form_open={set_open}
+        set_page_status={set_page_status}
         renderCell={renderCell} />
     </div>
   );
