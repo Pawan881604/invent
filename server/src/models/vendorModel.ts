@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model,Types, Schema } from "mongoose";
 
 export interface IVendor extends Document {
   vendor_id: string;
@@ -13,6 +13,7 @@ export interface IVendor extends Document {
   city: string;
   state: string;
   country: string;
+  audit_log: Types.ObjectId;
   status: string;
   is_active?: string; // Optional field
   is_delete?: string; // Optional field
@@ -84,6 +85,10 @@ const vendorSchema: Schema<IVendor> = new mongoose.Schema(
     status: {
       type: String,
       default: "active", // Active by default
+    },
+    audit_log: {
+      type: Schema.Types.ObjectId,
+      ref: "AuditLog",
     },
     is_active: {
       type: String,

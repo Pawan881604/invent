@@ -1,11 +1,16 @@
 import { NextFunction } from "express";
 import VendorRepository from "../repositories/vendorRepository";
 import ErrorHandler from "../utils/ErrorHandler";
+import AuditLogger from "../repositories/AuditLoggerRepository";
 
 class VendorService {
-  constructor(private vendorRepository: VendorRepository) {}
+  private auditLogger: AuditLogger;
 
-  async add_new_vendor(vendordata: any, next: NextFunction) {
+  constructor(private vendorRepository: VendorRepository) {
+    this.auditLogger = new AuditLogger();
+  }
+
+  async add_new_vendor(vendordata: any, user_id: string, next: NextFunction) {
     const existing_gstin = await this.vendorRepository.findByGstin(
       vendordata.gstin
     );
@@ -32,8 +37,13 @@ class VendorService {
         new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
       );
     }
+    const new_audit = await this.auditLogger.logUpdate(
+      user_id, // Assuming newVendor has an _id field
+      vendordata
+    );
+    console.log("ausit", new_audit);
 
-    return await this.vendorRepository.createVendor(vendordata);
+    return await this.vendorRepository.createVendor(vendordata,new_audit);
   }
   async update_details(vendordata: any, next: NextFunction) {
     const id_exist = await this.vendorRepository.find_by_vendor_id(
@@ -43,16 +53,27 @@ class VendorService {
     if (!id_exist) {
       return next(new ErrorHandler("Vendor ID does not exist", 400));
     }
-  
-    const existing_email = await this.vendorRepository.findByEmail(vendordata.email);
+
+    const existing_email = await this.vendorRepository.findByEmail(
+      vendordata.email
+    );
     if (existing_email && existing_email.email !== id_exist.email) {
-        return next(new ErrorHandler("Vendor with this Email already exists", 400));
+      return next(
+        new ErrorHandler("Vendor with this Email already exists", 400)
+      );
     }
-    const existingVendorWithSameGstin = await this.vendorRepository.findByGstin(vendordata.gstin);
-   
-    if (existingVendorWithSameGstin && existingVendorWithSameGstin.gstin !== id_exist.gstin) {
-      return next(new ErrorHandler("Vendor with this GSTIN already exists", 400));
-  }
+    const existingVendorWithSameGstin = await this.vendorRepository.findByGstin(
+      vendordata.gstin
+    );
+
+    if (
+      existingVendorWithSameGstin &&
+      existingVendorWithSameGstin.gstin !== id_exist.gstin
+    ) {
+      return next(
+        new ErrorHandler("Vendor with this GSTIN already exists", 400)
+      );
+    }
 
     if (
       isNaN(vendordata.pin_code) ||

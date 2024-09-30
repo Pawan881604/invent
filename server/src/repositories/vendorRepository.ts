@@ -5,7 +5,7 @@ import { generateRandomId } from "../utils/generateRandomId";
 import ErrorHandler from "../utils/ErrorHandler";
 
 class VendorRepository {
-  async createVendor(data: any) {
+  async createVendor(data: any,new_audit:any) {
     const rendom_id = generateRandomId();
     const {
       country,
@@ -21,6 +21,7 @@ class VendorRepository {
       city,
       uuid,
     } = data;
+
     const vendor_data = {
       vendor_id: `vedor_${uuid}_${rendom_id}`,
       vendor_name: name,
@@ -34,6 +35,7 @@ class VendorRepository {
       city: city,
       state: state,
       country: country,
+      audit_log:new_audit,
     };
     const vendor = new VendorModel(vendor_data);
     return await vendor.save();
