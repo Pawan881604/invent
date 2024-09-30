@@ -1,4 +1,4 @@
-import { Vendor_Data, vendr_form } from "@/types/Vendor_type";
+import { Vendor_Data, vendr_form, vendr_list } from "@/types/Vendor_type";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface Vendors {
@@ -21,18 +21,35 @@ export const vendorApi = createApi({
       }),
       invalidatesTags: [{ type: "Vendor", id: "LIST" }],
     }),
-    removeVendor: build.mutation({
+    update_vendor: build.mutation<Vendor_Data, vendr_form>({
+      query: (data) => ({
+        url: "/api/vendor/update",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [{ type: "Vendor", id: "LIST" }],
+    }),
+    actionVendor: build.mutation({
       query: (data) => {
         return {
           url: `/api/vendor/remove/${data.id}`,
           method: "POST",
+          body: data,
         };
       },
+      invalidatesTags: [{ type: "Vendor", id: "LIST" }],
+    }),
+    getSingeVendor: build.mutation<vendr_list, string>({
+      query: (id: string) => ({
+        url: `/api/vendor/data/${id}`,
+        method: "GET",
+      }),
       invalidatesTags: [{ type: "Vendor", id: "LIST" }],
     }),
     getAllVendors: build.query<
       Vendors[],
       {
+        is_delete?: string;
         keyword?: string;
         status?: string;
         rowsPerPage?: number;
@@ -47,9 +64,13 @@ export const vendorApi = createApi({
         };
         // Add filters to the query parameters if they are present
         if (filters) {
-          if (filters.is_active) {
+          if (filters.is_active && filters.is_active !== "final") {
             params.is_active = filters.is_active;
           }
+          if (filters.is_delete) {
+            params.is_delete = filters.is_delete;
+          }
+
           if (filters.keyword) {
             params.keyword = filters.keyword;
           }
@@ -80,5 +101,7 @@ export const vendorApi = createApi({
 export const {
   useAddNew_vendorMutation,
   useGetAllVendorsQuery,
-  useRemoveVendorMutation,
+  useActionVendorMutation,
+  useGetSingeVendorMutation,
+  useUpdate_vendorMutation,
 } = vendorApi;

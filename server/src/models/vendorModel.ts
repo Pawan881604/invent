@@ -9,7 +9,7 @@ export interface IVendor extends Document {
   gstin: string;
   address_line_1: string;
   address_line_2?: string; // Make optional if not always provided
-  pincode: number;
+  pincode: string;
   city: string;
   state: string;
   country: string;
@@ -61,7 +61,7 @@ const vendorSchema: Schema<IVendor> = new mongoose.Schema(
       default: null,
     },
     pincode: {
-      type: Number,
+      type: String,
       required: true, // You may want to require pincode
       min: 100000, // Minimum 6-digit number
       max: 999999, // Maximum 6-digit number
