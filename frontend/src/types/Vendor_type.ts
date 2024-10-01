@@ -8,6 +8,7 @@ export interface vendr_form {
   address_line_2: string;
   pin_code: number;
   state: string;
+  status: string;
   city: string;
   country: string;
   debit: string;
@@ -18,6 +19,7 @@ export interface vendr_form {
 export interface vendr_list  {
   _id: string;
   vendor_name: string;
+  audit_log:any;
   phone: string;
   email: string;
   company_name: string;

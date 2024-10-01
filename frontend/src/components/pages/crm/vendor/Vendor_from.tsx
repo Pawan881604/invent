@@ -1,6 +1,7 @@
 "use client";
 import Input_field from "@/components/common/fields/Input_field";
 import Phone_number_field from "@/components/common/fields/Phone_number_field";
+import Select_field from "@/components/common/fields/Select_field";
 import { vendr_form, vendr_list } from "@/types/Vendor_type";
 import { vendor_schema } from "@/zod-schemas/vendor_zod_schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ interface vender_form_props {
   vendor_data: vendr_list | never[];
   edit: boolean;
 }
+const status = [{ label: 'Active', value: 'active', }, { label: 'Inactive', value: 'inactive', }]
 const Vendor_from: React.FC<vender_form_props> = ({
   open,
   set_open,
@@ -32,6 +34,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
     resolver: zodResolver(vendor_schema),
     defaultValues: {
       country: "India", // Set default country value
+      status: "active", // Set default country value
     },
   });
   const memoizedVendorData = useMemo(() => {
@@ -40,6 +43,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
         name: vendor_data.vendor_name,
         phone: vendor_data.phone,
         email: vendor_data.email,
+        status: vendor_data.status,
         company: vendor_data.company_name,
         gstin: vendor_data.gstin,
         address_line_1: vendor_data.address_line_1,
@@ -77,7 +81,15 @@ const Vendor_from: React.FC<vender_form_props> = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex  items-center justify-between p-2">
             <p className="text-lg">Basic Details</p>
-            <Button className="bg-black text-white">Link Customer</Button>
+            <div className="w-52">
+              <Select_field
+              control={control}
+              errors={errors}
+              name="status"
+              label="select status"
+              options={status}
+            />
+            </div>
           </div>
           <div className="bg-white">
             <div className="flex flex-wrap gap-2">
@@ -162,7 +174,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                   control={control}
                   errors={errors}
                   name="state"
-                  label="Select State"
+                  label="State"
                 />
               </div>
               <div className="w-[49%]">
@@ -170,7 +182,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                   control={control}
                   errors={errors}
                   name="city"
-                  label="Select City"
+                  label="City"
                 />
               </div>
               <div className="w-[49%]">

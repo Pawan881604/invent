@@ -26,7 +26,9 @@ class VendorController {
   );
   update_details = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
-      const vendor = await this.vendorService.update_details(req.body, next);
+      const user: string = (req as any).user._id;
+
+      const vendor = await this.vendorService.update_details(req.body,user, next);
       if (vendor) {
         return res.status(201).json({
           success: true,

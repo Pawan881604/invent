@@ -4,11 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import AuditLogger from "../repositories/AuditLoggerRepository";
 
 class VendorService {
-  private auditLogger: AuditLogger;
-
-  constructor(private vendorRepository: VendorRepository) {
-    this.auditLogger = new AuditLogger();
-  }
+  constructor(private vendorRepository: VendorRepository) {}
 
   async add_new_vendor(vendordata: any, user_id: string, next: NextFunction) {
     const existing_gstin = await this.vendorRepository.findByGstin(
@@ -37,15 +33,10 @@ class VendorService {
         new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
       );
     }
-    const new_audit = await this.auditLogger.logUpdate(
-      user_id, // Assuming newVendor has an _id field
-      vendordata
-    );
-    console.log("ausit", new_audit);
 
-    return await this.vendorRepository.createVendor(vendordata,new_audit);
+    return await this.vendorRepository.createVendor(vendordata, user_id);
   }
-  async update_details(vendordata: any, next: NextFunction) {
+  async update_details(vendordata: any,user_id: string, next: NextFunction) {
     const id_exist = await this.vendorRepository.find_by_vendor_id(
       vendordata.id,
       next
@@ -85,7 +76,7 @@ class VendorService {
       );
     }
 
-    return await this.vendorRepository.update_vendor(vendordata);
+    return await this.vendorRepository.update_vendor(vendordata,user_id);
   }
 
   async all_vendors(query: any) {

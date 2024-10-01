@@ -5,7 +5,7 @@ import { generateRandomId } from "../utils/generateRandomId";
 import ErrorHandler from "../utils/ErrorHandler";
 
 class VendorRepository {
-  async createVendor(data: any,new_audit:any) {
+  async createVendor(data: any, user_id: any) {
     const rendom_id = generateRandomId();
     const {
       country,
@@ -19,6 +19,7 @@ class VendorRepository {
       pin_code,
       state,
       city,
+      status,
       uuid,
     } = data;
 
@@ -29,19 +30,20 @@ class VendorRepository {
       email: email,
       company_name: company,
       gstin: gstin,
+      status,
       address_line_1: address_line_1,
       address_line_2: address_line_2, // Make optional if not always provided
       pincode: pin_code,
       city: city,
       state: state,
       country: country,
-      audit_log:new_audit,
+      audit_log: user_id,
     };
     const vendor = new VendorModel(vendor_data);
     return await vendor.save();
   }
 
-  async update_vendor(data: any) {
+  async update_vendor(data: any, user_id: string) {
     const {
       name,
       phone,
@@ -52,6 +54,7 @@ class VendorRepository {
       address_line_2,
       pin_code,
       state,
+      status,
       city,
       country,
     } = data;
@@ -61,12 +64,14 @@ class VendorRepository {
       email: email,
       company_name: company,
       gstin: gstin,
+      status,
       address_line_1: address_line_1,
       address_line_2: address_line_2, // Make optional if not always provided
       pincode: pin_code,
       city: city,
       state: state,
       country: country,
+      audit_log: user_id,
     };
     const vendor = await VendorModel.findByIdAndUpdate(data.id, vendor_data, {
       new: true,
@@ -83,12 +88,24 @@ class VendorRepository {
   }
 
   async all_vendors(query: any) {
-    const resultPerpage = Number(query.rowsPerPage);
+    const resultPerPage = Number(query.rowsPerPage);
     const apiFeatures = new ApiFeatures(VendorModel.find(), query);
-    apiFeatures.search().filter().sort().pagination(resultPerpage);
-    const result = await apiFeatures.exec();
+    apiFeatures.search().filter().sort().pagination(resultPerPage);
+  
+    const result = await apiFeatures
+      .getQuery() // Use the public getter
+      .populate([
+        {
+          path: "audit_log",
+          model: "User",
+        },
+      ])
+      .sort({ updated_at: -1 })
+      .exec();
+  
     return result;
   }
+  
 
   async data_counter(query: any) {
     const apiFeatures = new ApiFeatures(VendorModel.find(), query);

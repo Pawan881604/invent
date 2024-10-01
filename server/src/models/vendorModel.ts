@@ -88,7 +88,7 @@ const vendorSchema: Schema<IVendor> = new mongoose.Schema(
     },
     audit_log: {
       type: Schema.Types.ObjectId,
-      ref: "AuditLog",
+      ref: "User",
     },
     is_active: {
       type: String,

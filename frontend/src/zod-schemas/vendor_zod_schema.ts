@@ -4,6 +4,9 @@ export const vendor_schema = z.object({
   name: z
     .string({ required_error: "Name is required" })
     .min(1, { message: "Name cannot be empty" }),
+    status: z
+    .string({ required_error: "Status is required" })
+    .min(1, { message: "Status cannot be empty" }),
   phone: z
     .string({ required_error: "Phone is required" })
     .min(10, { message: "Phone number must be at least 10 digits" })
