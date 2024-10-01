@@ -25,6 +25,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 import { usersApi } from "@/state/usersApi";
 import { vendorApi } from "@/state/vendorApi";
+import userSlice from "@/state/store/userSlice";
 
 /* REDUX PERSISTENCE */
 const createNoopStorage = () => {
@@ -49,10 +50,11 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["global"],
+  whitelist: ["global","user"],
 };
 const rootReducer = combineReducers({
   global: globalReducer,
+  user:userSlice,
   [api.reducerPath]: api.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
   [vendorApi.reducerPath]: vendorApi.reducer,
