@@ -9,11 +9,11 @@ class VendorController {
   }
   add_new = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
+      // console.log(req.body)
       const user: string = (req as any).user._id;
       if (!user) {
         return next(new ErrorHandler("User not authenticated", 401));
       }
-    
       const vendor = await this.vendorService.add_new_vendor(req.body,user, next);
 
       if (vendor) {

@@ -24,15 +24,15 @@ class VendorService {
       );
     }
 
-    if (
-      isNaN(vendordata.pin_code) ||
-      vendordata.pin_code < 100000 ||
-      vendordata.pin_code > 999999
-    ) {
-      return next(
-        new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
-      );
-    }
+    // if (
+    //   isNaN(vendordata.pin_code) ||
+    //   vendordata.pin_code < 100000 ||
+    //   vendordata.pin_code > 999999
+    // ) {
+    //   return next(
+    //     new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
+    //   );
+    // }
 
     return await this.vendorRepository.createVendor(vendordata, user_id);
   }
@@ -66,15 +66,15 @@ class VendorService {
       );
     }
 
-    if (
-      isNaN(vendordata.pin_code) ||
-      vendordata.pin_code < 100000 ||
-      vendordata.pin_code > 999999
-    ) {
-      return next(
-        new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
-      );
-    }
+    // if (
+    //   isNaN(vendordata.pin_code) ||
+    //   vendordata.pin_code < 100000 ||
+    //   vendordata.pin_code > 999999
+    // ) {
+    //   return next(
+    //     new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
+    //   );
+    // }
 
     return await this.vendorRepository.update_vendor(vendordata,user_id);
   }

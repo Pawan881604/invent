@@ -26,7 +26,7 @@ interface list_props {
   set_open: (value: boolean) => void;
   edit_handler: (value: any) => void;
 }
-const INITIAL_VISIBLE_COLUMNS = ["vendor_name", "phone","gstin","state", "status","audit_log", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["vendor_name", "phone", "gstin", "state", "updatedAt", "audit_log", "actions"];
 
 const columns: vendor_Column[] = [
   { name: "Name", uid: "vendor_name" },
@@ -35,12 +35,6 @@ const columns: vendor_Column[] = [
   { name: "Company", uid: "company_name" },
   { name: "Status", uid: "status" },
   { name: "GSTIN", uid: "gstin" },
-  { name: "Address Line 1", uid: "address_line_1" },
-  { name: "Address Line 2", uid: "address_line_2" },
-  { name: "Pincode", uid: "pin_code" },
-  { name: "State", uid: "state" },
-  { name: "City", uid: "city" },
-  { name: "Country", uid: "country" },
   { name: "Last Update", uid: "updatedAt" },
   { name: "Employ", uid: "audit_log" },
   { name: "Actions", uid: "actions" }, // Added actions column

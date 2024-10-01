@@ -2,7 +2,7 @@
 import Input_field from "@/components/common/fields/Input_field";
 import Phone_number_field from "@/components/common/fields/Phone_number_field";
 import Select_field from "@/components/common/fields/Select_field";
-import { vendr_form, vendr_list } from "@/types/Vendor_type";
+import { BaseAddress, vendr_form, vendr_list } from "@/types/Vendor_type";
 import { vendor_schema } from "@/zod-schemas/vendor_zod_schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, ModalFooter, ModalHeader } from "@nextui-org/react";
@@ -31,46 +31,88 @@ const Vendor_from: React.FC<vender_form_props> = ({
     setValue,
     formState: { errors },
   } = useForm<vendr_form>({
-    resolver: zodResolver(vendor_schema),
+    // resolver: zodResolver(vendor_schema),
     defaultValues: {
-      country: "India", // Set default country value
+      shipping_address:{ country: "India"}, // Set default country value
+      billing_address:{ country: "India"}, // Set default country value
       status: "active", // Set default country value
     },
   });
   const memoizedVendorData = useMemo(() => {
-    if (!Array.isArray(vendor_data)) {
+    if (vendor_data && typeof vendor_data === 'object' && !Array.isArray(vendor_data)) {
       return {
         name: vendor_data.vendor_name,
         phone: vendor_data.phone,
         email: vendor_data.email,
-        status: vendor_data.status,
         company: vendor_data.company_name,
         gstin: vendor_data.gstin,
-        address_line_1: vendor_data.address_line_1,
-        address_line_2: vendor_data.address_line_2,
-        pin_code: vendor_data.pincode,
-        state: vendor_data.state,
-        city: vendor_data.city,
-        country: vendor_data.country,
+        status: vendor_data.status,
+        shipping_address: {
+          address_line_1: vendor_data.shipping_address?.address_line_1 || '',
+          address_line_2: vendor_data.shipping_address?.address_line_2 || '',
+          city: vendor_data.shipping_address?.city || '',
+          state: vendor_data.shipping_address?.state || '',
+          pin_code: vendor_data.shipping_address?.pin_code || '',
+          country: vendor_data.shipping_address?.country || '',
+        },
+        billing_address: {
+          address_line_1: vendor_data.billing_address?.address_line_1 || '',
+          address_line_2: vendor_data.billing_address?.address_line_2 || '',
+          city: vendor_data.billing_address?.city || '',
+          state: vendor_data.billing_address?.state || '',
+          pin_code: vendor_data.billing_address?.pin_code || '',
+          country: vendor_data.billing_address?.country || '',
+        },
       };
     }
-    return {} as Partial<vendr_form>; // Use Partial<vendr_form> to allow missing keys
+    return {} as Partial<vendr_form>; // Use Partial<vendr_form> to allow for missing keys
   }, [vendor_data]);
-
+  
   useEffect(() => {
-    if (edit) {
-      if (Object.keys(memoizedVendorData).length > 0) {
-        (Object.keys(memoizedVendorData) as (keyof vendr_form)[]).forEach(
-          (key) =>
-            setValue(key, memoizedVendorData[key] as vendr_form[typeof key])
-        );
+    if (edit && Object.keys(memoizedVendorData).length > 0) {
+      // Validate if memoizedVendorData has the correct structure
+      const isValidVendorData = (data: any): data is vendr_form => {
+        return data && typeof data === 'object' && 'name' in data; // Adjust according to your requirements
+      };
+  
+      if (isValidVendorData(memoizedVendorData)) {
+        // Iterate over each key in memoizedVendorData
+        (Object.keys(memoizedVendorData) as (keyof vendr_form)[]).forEach((key) => {
+          const value = memoizedVendorData[key];
+          if (value !== undefined) { // Ensure value is not undefined
+            if (typeof value === 'object' && value !== null) {
+              // If value is an object (i.e., an address), iterate through its keys
+              (Object.keys(value) as (keyof BaseAddress)[]).forEach((addressKey) => {
+                const fullKey = `${key}.${addressKey}` as keyof vendr_form; // Assert fullKey as keyof vendr_form
+                
+                // Use a type assertion here to ensure we pass the correct type to setValue
+                if (typeof value[addressKey] === 'number') {
+                  // If the value is a number, convert it to string
+                  setValue(fullKey, value[addressKey].toString());
+                } else {
+                  setValue(fullKey, value[addressKey] as string); // Cast as string for other cases
+                }
+              });
+            } else {
+              // Set value for top-level keys
+              setValue(key, value as string); // You might need to adjust this based on your requirements
+            }
+          }
+        });
       }
     } else {
+      // Clear form if not in edit mode
       (Object.keys(memoizedVendorData) as (keyof vendr_form)[]).forEach((key) =>
-        setValue(key, "")
+        setValue(key, '')
       );
     }
   }, [memoizedVendorData, setValue, edit]);
+  
+  
+  
+  
+  
+  
 
   return (
     <div>
@@ -143,13 +185,13 @@ const Vendor_from: React.FC<vender_form_props> = ({
               </div>
 
               <div className="w-full">
-                <p className="text-lg">Billing Address</p>
+                <p className="text-lg">Shipping Address</p>
               </div>
               <div className="w-[49%]">
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="address_line_1"
+                  name="shipping_address.address_line_1"
                   label="Address Line 1"
                 />
               </div>
@@ -157,7 +199,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="address_line_2"
+                  name="shipping_address.address_line_2"
                   label="Address Line 2"
                 />
               </div>
@@ -165,7 +207,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="pin_code"
+                  name="shipping_address.pin_code"
                   label="Pin Code"
                 />
               </div>
@@ -173,7 +215,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="state"
+                  name="shipping_address.state"
                   label="State"
                 />
               </div>
@@ -181,7 +223,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="city"
+                  name="shipping_address.city"
                   label="City"
                 />
               </div>
@@ -189,7 +231,58 @@ const Vendor_from: React.FC<vender_form_props> = ({
                 <Input_field
                   control={control}
                   errors={errors}
-                  name="country"
+                  name="shipping_address.country"
+                  label="Country"
+                />
+              </div>
+              <div className="w-full">
+                <p className="text-lg">Billing Address - Opptional</p>
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.address_line_1"
+                  label="Address Line 1"
+                />
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.address_line_2"
+                  label="Address Line 2"
+                />
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.pin_code"
+                  label="Pin Code"
+                />
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.state"
+                  label="State"
+                />
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.city"
+                  label="City"
+                />
+              </div>
+              <div className="w-[49%]">
+                <Input_field
+                  control={control}
+                  errors={errors}
+                  name="billing_address.country"
                   label="Country"
                 />
               </div>
