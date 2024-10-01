@@ -19,7 +19,7 @@ export interface Customer_form {
   credit: string;
 }
 
-export interface Customer_list {
+export interface customer_list {
   _id: string;
   name: string;
   audit_log: any;
@@ -41,13 +41,13 @@ export interface Customer_Data {
 }
 
 export interface Get_CustomerResponse {
-  customer: Customer_list[]; // Make sure this matches your expected type
+  customer: customer_list[]; // Make sure this matches your expected type
   resultPerpage: number; // Add any other properties you expect
   data_counter: number; // Add any other properties you expect
 }
 
-export interface Post_VendorResponse {
-  customer: Customer_list; // Make sure this matches your expected type
+export interface Post_CustomerResponse {
+  customer: customer_list; // Make sure this matches your expected type
 }
 export interface Customer_Column {
   name: string;

@@ -1,6 +1,5 @@
 "use client"
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import Vendor_list from "./Customer_list";
 import Vendor_from from "./Customer_from";
 import Popover_component from "@/components/Popover_component/Popover_component";
 import {
@@ -15,6 +14,9 @@ import {
 } from "@/state/vendorApi";
 import { generate32BitUUID } from "@/lib/service/generate32BitUUID";
 import toast from "react-hot-toast";
+import Customer_list from "./Customer_list";
+import Customer_from from "./Customer_from";
+import { Customer_form, customer_list, Post_CustomerResponse } from "@/types/Customer_type";
 
 const Customer: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -26,40 +28,44 @@ const Customer: React.FC = () => {
   const [update_vendor, { error: update_error, isSuccess: update_success, isLoading: update_loading }] = useUpdate_vendorMutation();
   const [getSingeVendor, { data }] = useGetSingeVendorMutation();
 
-  const response: Post_VendorResponse | undefined = data as
-    | Post_VendorResponse
+  const response: Post_CustomerResponse | undefined = data as
+    | Post_CustomerResponse
     | undefined;
 
-  const vendor: vendr_list | never[] = useMemo(() => {
-    const vendor: vendr_list | never[] = response?.vendor || [];
-    return vendor;
+  const customer: customer_list | never[] = useMemo(() => {
+    const customer: customer_list | never[] = response?.customer || [];
+    return customer;
   }, [response]);
 
-  const onSubmit = useCallback(
-    async (data: vendr_form) => {
-      if (edit) {
-        if (Array.isArray(vendor) || !vendor?._id) {
-          console.error("Vendor data is invalid or empty");
-          return;
-        }
-        console.log('Updating vendor:', vendor?._id);
-        const updated_data = { ...data, id: vendor?._id };
+  // const onSubmit = useCallback(
+  //   async (data: Customer_form) => {
+  //     console.log(data)
+  //     // if (edit) {
+  //     //   if (Array.isArray(customer) || !customer?._id) {
+  //     //     console.error("Vendor data is invalid or empty");
+  //     //     return;
+  //     //   }
+  //     //   console.log('Updating vendor:', customer?._id);
+  //     //   const updated_data = { ...data, id: customer?._id };
 
-        try {
-          await update_vendor(updated_data);
-          setOperationSuccess(true); // Set success state for update
-        } catch (error) {
-          console.error("Error updating vendor:", error);
-        }
-      } else {
-        const updated_data = { ...data, uuid: generate32BitUUID() };
-        await addNew_vendor(updated_data);
-        setOperationSuccess(true); // Set success state for creation
-      }
-    },
-    [addNew_vendor, update_vendor, edit, vendor]
-  );
+  //     //   try {
+  //     //     await update_vendor(updated_data);
+  //     //     setOperationSuccess(true); // Set success state for update
+  //     //   } catch (error) {
+  //     //     console.error("Error updating vendor:", error);
+  //     //   }
+  //     // } else {
+  //     //   const updated_data = { ...data, uuid: generate32BitUUID() };
+  //     //   await addNew_vendor(updated_data);
+  //     //   setOperationSuccess(true); // Set success state for creation
+  //     // }
+  //   },
+  //   [addNew_vendor, update_vendor, edit, customer]
+  // );
 
+  const onSubmit =(data: Customer_form) => {
+      console.log(data)
+  }
   const edit_handler = useCallback(
     async (value: string) => {
       setIsOpen(true);
@@ -69,44 +75,44 @@ const Customer: React.FC = () => {
     [setEdit, getSingeVendor]
   );
   // Handle success and error messages
-  useEffect(() => {
-    // Handle error messages
-    if (error || update_error) {
-      let errorMessage = "An unexpected error occurred."; // Default message
+  // useEffect(() => {
+  //   // Handle error messages
+  //   if (error || update_error) {
+  //     let errorMessage = "An unexpected error occurred."; // Default message
 
-      // Check if 'error' is defined and has the expected structure
-      if (error && 'data' in error) {
-        errorMessage = (error as { data?: { message?: string } }).data?.message || errorMessage;
-      }
+  //     // Check if 'error' is defined and has the expected structure
+  //     if (error && 'data' in error) {
+  //       errorMessage = (error as { data?: { message?: string } }).data?.message || errorMessage;
+  //     }
 
-      // Check if 'update_error' is defined and has the expected structure
-      if (update_error && 'data' in update_error) {
-        errorMessage = (update_error as { data?: { message?: string } }).data?.message || errorMessage;
-      }
+  //     // Check if 'update_error' is defined and has the expected structure
+  //     if (update_error && 'data' in update_error) {
+  //       errorMessage = (update_error as { data?: { message?: string } }).data?.message || errorMessage;
+  //     }
 
-      toast.error(errorMessage);
-      setOperationSuccess(false); // Reset success state on error
-      return; // Exit early if there's an error
-    }
+  //     toast.error(errorMessage);
+  //     setOperationSuccess(false); // Reset success state on error
+  //     return; // Exit early if there's an error
+  //   }
 
-    // Handle success messages
-    if (isSuccess && operationSuccess) {
-      setIsOpen(false);
-      setEdit(false);
-      toast.success("Vendor added successfully");
-      setOperationSuccess(false); // Reset success state after handling success
-    } else if (update_success && operationSuccess) {
-      setIsOpen(false);
-      setEdit(false);
-      toast.success("Vendor updated successfully");
-      setOperationSuccess(false); // Reset success state after handling success
-    }
+  //   // Handle success messages
+  //   if (isSuccess && operationSuccess) {
+  //     setIsOpen(false);
+  //     setEdit(false);
+  //     toast.success("Vendor added successfully");
+  //     setOperationSuccess(false); // Reset success state after handling success
+  //   } else if (update_success && operationSuccess) {
+  //     setIsOpen(false);
+  //     setEdit(false);
+  //     toast.success("Vendor updated successfully");
+  //     setOperationSuccess(false); // Reset success state after handling success
+  //   }
 
-    // Reset edit state if the popover is closed
-    if (!isOpen) {
-      setEdit(false);
-    }
-  }, [error, isSuccess, isOpen, setEdit, operationSuccess, update_error, update_success]);
+  //   // Reset edit state if the popover is closed
+  //   if (!isOpen) {
+  //     setEdit(false);
+  //   }
+  // }, [error, isSuccess, isOpen, setEdit, operationSuccess, update_error, update_success]);
 
 
   return (
@@ -116,19 +122,19 @@ const Customer: React.FC = () => {
           open={isOpen}
           set_open={setIsOpen}
           components={
-            <Vendor_from
+            <Customer_from
               isLoading={isLoading || update_loading}
               edit={edit}
               open={isOpen}
               set_open={setIsOpen}
-              vendor_data={vendor}
+              data={customer}
               onSubmit={onSubmit}
             />
           }
         />
       )}
 
-      <Vendor_list set_open={setIsOpen} edit_handler={edit_handler} />
+      <Customer_list set_open={setIsOpen} edit_handler={edit_handler} />
     </div>
   );
 };
