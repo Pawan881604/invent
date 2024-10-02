@@ -35,10 +35,12 @@ const customerSchema: Schema<ICustomer> = new mongoose.Schema(
       type: String,
       trim: true,
       default: null,
+     
     },
     company_name: {
       type: String,
       trim: true,
+     
       default: null,
     },
     gstin: {

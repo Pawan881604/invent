@@ -6,22 +6,26 @@ class CustomerService {
   constructor(private customerRepository: CustomerRepository) {}
 
   async add_new_customer(data: any, user_id: string, next: NextFunction) {
-    const existing_gstin = await this.customerRepository.findByGstin(
-      data.gstin
-    );
-    const existing_email = await this.customerRepository.findByEmail(
-      data.email
-    );
-    if (existing_email) {
-      return next(
-        new ErrorHandler("Customer with this Email already exists", 400)
+    if (data.gstin) {
+      const existing_email = await this.customerRepository.findByEmail(
+        data.email
       );
+      if (existing_email) {
+        return next(
+          new ErrorHandler("Customer with this Email already exists", 400)
+        );
+      }
     }
-
-    if (existing_gstin) {
-      return next(
-        new ErrorHandler("Customer with this Gstin already exists", 400)
+    if (data.gstin) {
+      const existing_gstin = await this.customerRepository.findByGstin(
+        data.gstin
       );
+
+      if (existing_gstin) {
+        return next(
+          new ErrorHandler("Customer with this Gstin already exists", 400)
+        );
+      }
     }
     return await this.customerRepository.createCustomer(data, user_id);
   }
@@ -31,25 +35,29 @@ class CustomerService {
       return next(new ErrorHandler("Customer ID does not exist", 400));
     }
 
-    const existing_email = await this.customerRepository.findByEmail(
-      data.email
-    );
-    if (existing_email && existing_email.email !== id_exist.email) {
-      return next(
-        new ErrorHandler("Customer with this Email already exists", 400)
+    if (data.email) {
+      const existing_email = await this.customerRepository.findByEmail(
+        data.email
       );
+      if (existing_email && existing_email.email !== id_exist.email) {
+        return next(
+          new ErrorHandler("Customer with this Email already exists", 400)
+        );
+      }
     }
-    const existingWithSameGstin = await this.customerRepository.findByGstin(
-      data.gstin
-    );
-
-    if (
-      existingWithSameGstin &&
-      existingWithSameGstin.gstin !== id_exist.gstin
-    ) {
-      return next(
-        new ErrorHandler("Customer with this GSTIN already exists", 400)
+    if (data.gstin) {
+      const existingWithSameGstin = await this.customerRepository.findByGstin(
+        data.gstin
       );
+
+      if (
+        existingWithSameGstin &&
+        existingWithSameGstin.gstin !== id_exist.gstin
+      ) {
+        return next(
+          new ErrorHandler("Customer with this GSTIN already exists", 400)
+        );
+      }
     }
 
     return await this.customerRepository.update_customer(data, user_id);

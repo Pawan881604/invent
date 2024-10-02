@@ -31,7 +31,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
     setValue,
     formState: { errors },
   } = useForm<vendr_form>({
-    // resolver: zodResolver(vendor_schema),
+    resolver: zodResolver(vendor_schema),
     defaultValues: {
       shipping_address:{ country: "India"}, // Set default country value
       billing_address:{ country: "India"}, // Set default country value
@@ -41,7 +41,7 @@ const Vendor_from: React.FC<vender_form_props> = ({
   const memoizedVendorData = useMemo(() => {
     if (vendor_data && typeof vendor_data === 'object' && !Array.isArray(vendor_data)) {
       return {
-        name: vendor_data.vendor_name,
+        name: vendor_data.name,
         phone: vendor_data.phone,
         email: vendor_data.email,
         company: vendor_data.company_name,

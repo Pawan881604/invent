@@ -1,32 +1,39 @@
 import { NextFunction } from "express";
 import VendorRepository from "../repositories/vendorRepository";
 import ErrorHandler from "../utils/ErrorHandler";
-import AuditLogger from "../repositories/AuditLoggerRepository";
+import validator from "../utils/validation/ValidateClass";
 
 class VendorService {
   constructor(private vendorRepository: VendorRepository) {}
 
   async add_new_vendor(vendordata: any, user_id: string, next: NextFunction) {
-    const existing_gstin = await this.vendorRepository.findByGstin(
-      vendordata.gstin
-    );
-    const existing_email = await this.vendorRepository.findByEmail(
-      vendordata.email
-    );
-    if (existing_email) {
-      return next(
-        new ErrorHandler("Vendor with this Email already exists", 400)
+    if (vendordata.email) {
+      const existing_email = await this.vendorRepository.findByEmail(
+        vendordata.email
       );
+      if (existing_email)
+        return next(
+          new ErrorHandler("Vendor with this Email already exists", 400)
+        );
     }
-    if (existing_gstin) {
-      return next(
-        new ErrorHandler("Vendor with this Gstin already exists", 400)
+    if (vendordata.gstin) {
+      const existing_gstin = await this.vendorRepository.findByGstin(
+        vendordata.gstin
       );
+      if (vendordata.gstin.length !== 15) {
+        return next(new ErrorHandler("GSTIN must be 15 characters long", 400));
+      }
+
+      if (existing_gstin) {
+        return next(
+          new ErrorHandler("Vendor with this Gstin already exists", 400)
+        );
+      }
     }
 
     return await this.vendorRepository.createVendor(vendordata, user_id);
   }
-  async update_details(vendordata: any,user_id: string, next: NextFunction) {
+  async update_details(vendordata: any, user_id: string, next: NextFunction) {
     const id_exist = await this.vendorRepository.find_by_vendor_id(
       vendordata.id,
       next
@@ -34,26 +41,28 @@ class VendorService {
     if (!id_exist) {
       return next(new ErrorHandler("Vendor ID does not exist", 400));
     }
-
-    const existing_email = await this.vendorRepository.findByEmail(
-      vendordata.email
-    );
-    if (existing_email && existing_email.email !== id_exist.email) {
-      return next(
-        new ErrorHandler("Vendor with this Email already exists", 400)
+    if (vendordata.email) {
+      const existing_email = await this.vendorRepository.findByEmail(
+        vendordata.email
       );
+      if (existing_email && existing_email.email !== id_exist.email) {
+        return next(
+          new ErrorHandler("Vendor with this Email already exists", 400)
+        );
+      }
     }
-    const existingVendorWithSameGstin = await this.vendorRepository.findByGstin(
-      vendordata.gstin
-    );
+    if (vendordata.gstin) {
+      const existingVendorWithSameGstin =
+        await this.vendorRepository.findByGstin(vendordata.gstin);
 
-    if (
-      existingVendorWithSameGstin &&
-      existingVendorWithSameGstin.gstin !== id_exist.gstin
-    ) {
-      return next(
-        new ErrorHandler("Vendor with this GSTIN already exists", 400)
-      );
+      if (
+        existingVendorWithSameGstin &&
+        existingVendorWithSameGstin.gstin !== id_exist.gstin
+      ) {
+        return next(
+          new ErrorHandler("Vendor with this GSTIN already exists", 400)
+        );
+      }
     }
 
     // if (
@@ -66,7 +75,7 @@ class VendorService {
     //   );
     // }
 
-    return await this.vendorRepository.update_vendor(vendordata,user_id);
+    return await this.vendorRepository.update_vendor(vendordata, user_id);
   }
 
   async all_vendors(query: any) {

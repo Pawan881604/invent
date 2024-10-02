@@ -6,6 +6,8 @@ import Select_field from "@/components/common/fields/Select_field";
 import { BaseAddress, customer_form, customer_list } from "@/types/Customer_type";
 import { Button, ModalFooter, ModalHeader } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
+import { customer_schema } from "@/zod-schemas/customer_zod_schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface Customer_from_props {
   open: boolean;
@@ -32,6 +34,7 @@ const Customer_from: React.FC<Customer_from_props> = ({
     setValue,
     formState: { errors },
   } = useForm<customer_form>({
+    resolver: zodResolver(customer_schema),
     defaultValues: {
       shipping_address: { country: "India" }, // Set default country value
       billing_address: { country: "India" }, // Set default country value

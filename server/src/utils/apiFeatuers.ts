@@ -11,7 +11,8 @@ class ApiFeatures {
     const keyword = this.queryStr.keyword
       ? {
           $or: [
-            { vendor_name: { $regex: this.queryStr.keyword, $options: "i" } },
+            { name: { $regex: this.queryStr.keyword, $options: "i" } },
+            { gstin: { $regex: this.queryStr.keyword, $options: "i" } },
           ],
         }
       : {};

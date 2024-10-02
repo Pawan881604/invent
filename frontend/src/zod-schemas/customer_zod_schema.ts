@@ -16,7 +16,7 @@ const address_schema = z.object({
 });
 
 // Define the vendor schema
-export const vendor_schema = z.object({
+export const customer_schema = z.object({
   name: z
     .string({ required_error: "Name is required" })
     .min(1, { message: "Name cannot be empty" }),

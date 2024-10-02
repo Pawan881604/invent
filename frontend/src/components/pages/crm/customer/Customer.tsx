@@ -4,17 +4,17 @@ import Popover_component from "@/components/Popover_component/Popover_component"
 import { generate32BitUUID } from "@/lib/service/generate32BitUUID";
 import toast from "react-hot-toast";
 import Customer_list from "./Customer_list";
-import Customer_form from "./Customer_from";
-import { customer_form, customer_list, Post_CustomerResponse } from "@/types/Customer_type";
+import Customer_from from "./Customer_from";
 import { useAddNewCustomerMutation, useGetSingleCustomerMutation, useUpdate_customerMutation } from "@/state/customerApi";
+import { customer_form, customer_list, Post_CustomerResponse } from "@/types/Customer_type";
 
-const Customer: React.FC = () => {
+const Vendor: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [edit, setEdit] = useState<boolean>(false);
   const [operationSuccess, setOperationSuccess] = useState<boolean>(false); // New state for operation success
 
-
-  const [addNewCustomer, { error, isSuccess, isLoading }] = useAddNewCustomerMutation();
+  const [addNewCustomer, { error, isSuccess, isLoading }] =
+    useAddNewCustomerMutation();
   const [update_customer, { error: update_error, isSuccess: update_success, isLoading: update_loading }] = useUpdate_customerMutation();
   const [getSingleCustomer, { data }] = useGetSingleCustomerMutation();
 
@@ -29,20 +29,19 @@ const Customer: React.FC = () => {
 
   const onSubmit = useCallback(
     async (data: customer_form) => {
-      
       if (edit) {
         if (Array.isArray(customer) || !customer?._id) {
           console.error("Customer data is invalid or empty");
           return;
         }
-        console.log('Updating Customer:', customer?._id);
+        console.log('Updating customer:', customer?._id);
         const updated_data = { ...data, id: customer?._id };
 
         try {
           await update_customer(updated_data);
           setOperationSuccess(true); // Set success state for update
         } catch (error) {
-          console.error("Error updating Customer:", error);
+          console.error("Error updating vendor:", error);
         }
       } else {
         const updated_data = { ...data, uuid: generate32BitUUID() };
@@ -53,11 +52,9 @@ const Customer: React.FC = () => {
     [addNewCustomer, update_customer, edit, customer]
   );
 
-
   const edit_handler = useCallback(
     async (value: string) => {
       setIsOpen(true);
-      console.log(value)
       await getSingleCustomer(value);
       setEdit(true);
     },
@@ -111,7 +108,7 @@ const Customer: React.FC = () => {
           open={isOpen}
           set_open={setIsOpen}
           components={
-            <Customer_form 
+            <Customer_from
               isLoading={isLoading || update_loading}
               edit={edit}
               open={isOpen}
@@ -128,4 +125,4 @@ const Customer: React.FC = () => {
   );
 };
 
-export default Customer;
+export default Vendor;

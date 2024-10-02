@@ -21,7 +21,7 @@ export interface vendr_form {
 
 export interface vendr_list {
   _id: string;
-  vendor_name: string;
+  name: string;
   audit_log: any;
   phone: string;
   email: string;

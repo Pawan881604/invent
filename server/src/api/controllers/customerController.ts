@@ -26,7 +26,7 @@ class CustomerController {
   update_details = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
       const user: string = (req as any).user._id;
-
+      
       const customer = await this.customerService.update_details(req.body,user, next);
       if (customer) {
         return res.status(201).json({

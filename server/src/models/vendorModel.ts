@@ -2,7 +2,7 @@ import mongoose, { Document, Model, Types, Schema } from "mongoose";
 
 export interface IVendor extends Document {
   vendor_id: string;
-  vendor_name: string;
+  name: string;
   phone: string;
   email: string;
   company_name: string;
@@ -23,7 +23,7 @@ const vendorSchema: Schema<IVendor> = new mongoose.Schema(
       trim: true,
       required: true, // You may want to require vendor_id
     },
-    vendor_name: {
+    name: {
       type: String,
       trim: true,
       required: true, // Consider making vendor_name required

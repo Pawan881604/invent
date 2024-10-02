@@ -34,7 +34,7 @@ class VendorRepository {
     // Create vendor data object
     const vendor_data = {
       vendor_id: `vendor_${uuid}_${rendom_id}`,
-      vendor_name: name,
+      name: name,
       phone,
       email,
       company_name: company,
@@ -64,7 +64,7 @@ class VendorRepository {
 
     // Prepare the updated vendor data
     const vendor_data = {
-      vendor_name: name,
+      name: name,
       phone: phone,
       email: email,
       company_name: company,
