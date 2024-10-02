@@ -24,16 +24,6 @@ class VendorService {
       );
     }
 
-    // if (
-    //   isNaN(vendordata.pin_code) ||
-    //   vendordata.pin_code < 100000 ||
-    //   vendordata.pin_code > 999999
-    // ) {
-    //   return next(
-    //     new ErrorHandler("Pincode must be a valid 6-digit number.", 400)
-    //   );
-    // }
-
     return await this.vendorRepository.createVendor(vendordata, user_id);
   }
   async update_details(vendordata: any,user_id: string, next: NextFunction) {

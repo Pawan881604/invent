@@ -1,8 +1,4 @@
 import List_table from "@/components/common/table/List_table";
-import {
-  useGetAllVendorsQuery,
-  useActionVendorMutation,
-} from "@/state/vendorApi";
 import debounce from "lodash.debounce";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -12,24 +8,20 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { Trash2, Edit, Eye, RotateCcw, Eraser } from "lucide-react";
-
-import {
-  vendr_list,
-  Get_VendorResponse,
-  vendor_Column,
-} from "@/types/Vendor_type";
+import { Trash2, Edit, RotateCcw, Eraser } from "lucide-react";
 import toast from "react-hot-toast";
 import { TimeAgo } from "@/lib/service/time/timeAgo";
+import { useActionCustomerMutation, useGetAllcustomerQuery } from "@/state/customerApi";
+import { Column, customer_list, Get_CustomerResponse } from "@/types/Customer_type";
 
 interface Customer_list_props {
   set_open: (value: boolean) => void;
   edit_handler: (value: any) => void;
 }
-const INITIAL_VISIBLE_COLUMNS = ["vendor_name", "phone", "gstin", "state", "updatedAt", "audit_log", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "phone", "gstin", "state", "updatedAt", "audit_log", "actions"];
 
-const columns: vendor_Column[] = [
-  { name: "Name", uid: "vendor_name" },
+const columns: Column[] = [
+  { name: "Name", uid: "name" },
   { name: "Phone", uid: "phone" },
   { name: "Email", uid: "email" },
   { name: "Company", uid: "company_name" },
@@ -54,7 +46,10 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
-  const { data, error, isLoading } = useGetAllVendorsQuery({
+
+
+  //-------------use states for apis 
+  const { data, error, isLoading } = useGetAllcustomerQuery({
     is_active: page_status,
     is_delete: page_status && page_status === "final" ? "yes" : "no",
     keyword: debouncedFilterValue,
@@ -62,14 +57,15 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
     rowsPerPage: rowsPerPage,
     page: page,
   });
+
   const [
-    actionVendor,
+    actionCustomer,
     {
       error: delete_error,
       isLoading: delete_loading,
       isSuccess: delete_success,
     },
-  ] = useActionVendorMutation();
+  ] = useActionCustomerMutation();
   // Debounce the filter value to avoid excessive API calls
   const handleDebouncedFilter = useMemo(
     () => debounce((value) => setDebouncedFilterValue(value), 300),
@@ -104,65 +100,65 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
   // Fetch vendors only when debouncedFilterValue has a valid value
 
 
-  const response: Get_VendorResponse | undefined = data as
-    | Get_VendorResponse
+  const response: Get_CustomerResponse | undefined = data as
+    | Get_CustomerResponse
     | undefined;
-  const vendors: Get_VendorResponse = useMemo(() => {
-    const vendor: vendr_list[] = response?.vendor || [];
+  const customer: Get_CustomerResponse = useMemo(() => {
+    const customer: customer_list[] = response?.customer || [];
     const resultPerpage: number = response?.resultPerpage || 0;
     const data_counter: number = response?.data_counter || 0;
-    return { vendor, resultPerpage, data_counter };
+    return { customer, resultPerpage, data_counter };
   }, [response]);
 
   const renderCell = React.useCallback(
-    (vendor: vendr_list, columnKey: React.Key) => {
-      const cellValue = vendor[columnKey as keyof vendr_list];
+    (customer: customer_list, columnKey: React.Key) => {
+      const cellValue = customer[columnKey as keyof customer_list];
 
       const deleteHandler = async (
         id: string,
         state: string,
         hard_delete?: string
       ) => {
-        await actionVendor({ id, state, hard_delete });
+        await actionCustomer({ id, state, hard_delete });
       };
       const restoreHandler = async (
         id: string,
         state: string,
         hard_delete?: string
       ) => {
-        await actionVendor({ id, state, hard_delete });
+        await actionCustomer({ id, state, hard_delete });
       };
       const hard_deleteHandler = async (
         id: string,
         state: string,
         hard_delete?: string
       ) => {
-        await actionVendor({ id, state, hard_delete });
+        await actionCustomer({ id, state, hard_delete });
       };
       const hard_restoreHandler = async (
         id: string,
         state: string,
         hard_delete?: string
       ) => {
-        await actionVendor({ id, state, hard_delete });
+        await actionCustomer({ id, state, hard_delete });
       };
 
       switch (columnKey) {
         case "vendor_name":
           return (
             <User
-              key={vendor._id}
+              key={customer._id}
               avatarProps={{ radius: "lg", src: "" }} // Replace with a valid image URL if available
               name={cellValue}
             >
-              {vendor.vendor_name}
+              {customer.name}
             </User>
           );
         case "status":
           return (
             <Chip
               className="capitalize"
-              color={statusColorMap[vendor.status.toLocaleLowerCase()]}
+              color={statusColorMap[customer.status.toLocaleLowerCase()]}
               size="sm"
               variant="flat"
             >
@@ -180,21 +176,21 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
         case "actions":
           return (
             <div className="relative flex justify-end gap-2">
-              <Tooltip content={vendor.is_active === "yes" ? "Edit vendor" : "Recover vendor"}>
+              <Tooltip content={customer.is_active === "yes" ? "Edit customer" : "Recover customer"}>
                 <span className="text-sm text-default-400 cursor-pointer active:opacity-50">
-                  {vendor && vendor.is_delete === "no" ? (
-                    vendor.is_active === "yes" ? (
-                      <Edit size={20} onClick={() => edit_handler(vendor._id)} />
-                    ) : vendor.is_active === "no" ? (
+                  {customer && customer.is_delete === "no" ? (
+                    customer.is_active === "yes" ? (
+                      <Edit size={20} onClick={() => edit_handler(customer._id)} />
+                    ) : customer.is_active === "no" ? (
                       <RotateCcw
-                        onClick={() => restoreHandler(vendor._id, "yes", "no")}
+                        onClick={() => restoreHandler(customer._id, "yes", "no")}
                         size={20}
                       />
                     ) : null /* Handle if no other case applies */
                   ) : (
                     <RotateCcw
                       onClick={() =>
-                        hard_restoreHandler(vendor._id, "no", "no")
+                        hard_restoreHandler(customer._id, "no", "no")
                       }
                       size={20}
                     />
@@ -202,27 +198,27 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
                 </span>
               </Tooltip>
 
-              <Tooltip content={vendor.is_active === "yes" ? "Delete vendor" : "Erase vendor"}>
+              <Tooltip content={customer.is_active === "yes" ? "Delete customer" : "Erase customer"}>
                 <span className="text-sm text-red-600 cursor-pointer active:opacity-50">
                   {
-                    vendor && vendor.is_delete === "no" ? (
+                    customer && customer.is_delete === "no" ? (
                       delete_loading ? (
                         <CircularProgress size="sm" aria-label="Loading..." />
-                      ) : vendor.is_active === "yes" ? (
+                      ) : customer.is_active === "yes" ? (
                         <Trash2
                           className="text-red-600"
-                          onClick={() => deleteHandler(vendor._id, "no", "no")}
+                          onClick={() => deleteHandler(customer._id, "no", "no")}
                           size={20}
                         />
                       ) : (
                         <Eraser
                           onClick={() =>
-                            hard_deleteHandler(vendor._id, "no", "yes")
+                            hard_deleteHandler(customer._id, "no", "yes")
                           }
                           size={20}
                         />
                       )
-                    ) : null /* Handle if vendor.is_delete is "no" */
+                    ) : null /* Handle if customer.is_delete is "no" */
                   }
                 </span>
               </Tooltip>
@@ -239,15 +235,15 @@ const Customer_list: React.FC<Customer_list_props> = ({ set_open, edit_handler }
     <div>
       {/* <Test set_open={set_open} data={data} />
        */}
-      <List_table<vendr_list>
-        data={vendors.vendor}
+      <List_table<customer_list>
+        data={customer.customer}
         loading={isLoading}
         columns={columns}
-        resultPerpage={vendors.resultPerpage}
+        resultPerpage={customer.resultPerpage}
         setRowsPerPage={setRowsPerPage}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
-        data_length={vendors.data_counter}
+        data_length={customer.data_counter}
         page={page}
         setPage={setPage}
         filterValue={filterValue}

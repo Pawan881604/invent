@@ -6,7 +6,7 @@ export interface BaseAddress {
   pin_code: number;
   country: string;
 }
-export interface Customer_form {
+export interface customer_form {
   name: string;
   phone: string;
   email: string;
@@ -27,7 +27,7 @@ export interface customer_list {
   email: string;
   company_name: string;
   shipping_address: BaseAddress; // Use the base address for shipping
-  billing_address: BaseAddress; // Use the base address for billing
+  billing_address: BaseAddress;   // Use the base address for billing
   gstin: string;
   status: string;
   is_active: string;
@@ -49,7 +49,7 @@ export interface Get_CustomerResponse {
 export interface Post_CustomerResponse {
   customer: customer_list; // Make sure this matches your expected type
 }
-export interface Customer_Column {
+export interface Column {
   name: string;
   uid: string;
 }

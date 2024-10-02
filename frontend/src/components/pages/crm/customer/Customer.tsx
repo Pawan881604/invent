@@ -1,32 +1,22 @@
 "use client"
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import Vendor_from from "./Customer_from";
 import Popover_component from "@/components/Popover_component/Popover_component";
-import {
-  Post_VendorResponse,
-  vendr_form,
-  vendr_list,
-} from "@/types/Vendor_type";
-import {
-  useAddNew_vendorMutation,
-  useGetSingeVendorMutation,
-  useUpdate_vendorMutation,
-} from "@/state/vendorApi";
 import { generate32BitUUID } from "@/lib/service/generate32BitUUID";
 import toast from "react-hot-toast";
 import Customer_list from "./Customer_list";
-import Customer_from from "./Customer_from";
-import { Customer_form, customer_list, Post_CustomerResponse } from "@/types/Customer_type";
+import Customer_form from "./Customer_from";
+import { customer_form, customer_list, Post_CustomerResponse } from "@/types/Customer_type";
+import { useAddNewCustomerMutation, useGetSingleCustomerMutation, useUpdate_customerMutation } from "@/state/customerApi";
 
 const Customer: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [edit, setEdit] = useState<boolean>(false);
   const [operationSuccess, setOperationSuccess] = useState<boolean>(false); // New state for operation success
 
-  const [addNew_vendor, { error, isSuccess, isLoading }] =
-    useAddNew_vendorMutation();
-  const [update_vendor, { error: update_error, isSuccess: update_success, isLoading: update_loading }] = useUpdate_vendorMutation();
-  const [getSingeVendor, { data }] = useGetSingeVendorMutation();
+
+  const [addNewCustomer, { error, isSuccess, isLoading }] = useAddNewCustomerMutation();
+  const [update_customer, { error: update_error, isSuccess: update_success, isLoading: update_loading }] = useUpdate_customerMutation();
+  const [getSingleCustomer, { data }] = useGetSingleCustomerMutation();
 
   const response: Post_CustomerResponse | undefined = data as
     | Post_CustomerResponse
@@ -37,82 +27,81 @@ const Customer: React.FC = () => {
     return customer;
   }, [response]);
 
-  // const onSubmit = useCallback(
-  //   async (data: Customer_form) => {
-  //     console.log(data)
-  //     // if (edit) {
-  //     //   if (Array.isArray(customer) || !customer?._id) {
-  //     //     console.error("Vendor data is invalid or empty");
-  //     //     return;
-  //     //   }
-  //     //   console.log('Updating vendor:', customer?._id);
-  //     //   const updated_data = { ...data, id: customer?._id };
+  const onSubmit = useCallback(
+    async (data: customer_form) => {
+      
+      if (edit) {
+        if (Array.isArray(customer) || !customer?._id) {
+          console.error("Customer data is invalid or empty");
+          return;
+        }
+        console.log('Updating Customer:', customer?._id);
+        const updated_data = { ...data, id: customer?._id };
 
-  //     //   try {
-  //     //     await update_vendor(updated_data);
-  //     //     setOperationSuccess(true); // Set success state for update
-  //     //   } catch (error) {
-  //     //     console.error("Error updating vendor:", error);
-  //     //   }
-  //     // } else {
-  //     //   const updated_data = { ...data, uuid: generate32BitUUID() };
-  //     //   await addNew_vendor(updated_data);
-  //     //   setOperationSuccess(true); // Set success state for creation
-  //     // }
-  //   },
-  //   [addNew_vendor, update_vendor, edit, customer]
-  // );
+        try {
+          await update_customer(updated_data);
+          setOperationSuccess(true); // Set success state for update
+        } catch (error) {
+          console.error("Error updating Customer:", error);
+        }
+      } else {
+        const updated_data = { ...data, uuid: generate32BitUUID() };
+        await addNewCustomer(updated_data);
+        setOperationSuccess(true); // Set success state for creation
+      }
+    },
+    [addNewCustomer, update_customer, edit, customer]
+  );
 
-  const onSubmit =(data: Customer_form) => {
-      console.log(data)
-  }
+
   const edit_handler = useCallback(
     async (value: string) => {
       setIsOpen(true);
-      await getSingeVendor(value);
+      console.log(value)
+      await getSingleCustomer(value);
       setEdit(true);
     },
-    [setEdit, getSingeVendor]
+    [setEdit, getSingleCustomer]
   );
   // Handle success and error messages
-  // useEffect(() => {
-  //   // Handle error messages
-  //   if (error || update_error) {
-  //     let errorMessage = "An unexpected error occurred."; // Default message
+  useEffect(() => {
+    // Handle error messages
+    if (error || update_error) {
+      let errorMessage = "An unexpected error occurred."; // Default message
 
-  //     // Check if 'error' is defined and has the expected structure
-  //     if (error && 'data' in error) {
-  //       errorMessage = (error as { data?: { message?: string } }).data?.message || errorMessage;
-  //     }
+      // Check if 'error' is defined and has the expected structure
+      if (error && 'data' in error) {
+        errorMessage = (error as { data?: { message?: string } }).data?.message || errorMessage;
+      }
 
-  //     // Check if 'update_error' is defined and has the expected structure
-  //     if (update_error && 'data' in update_error) {
-  //       errorMessage = (update_error as { data?: { message?: string } }).data?.message || errorMessage;
-  //     }
+      // Check if 'update_error' is defined and has the expected structure
+      if (update_error && 'data' in update_error) {
+        errorMessage = (update_error as { data?: { message?: string } }).data?.message || errorMessage;
+      }
 
-  //     toast.error(errorMessage);
-  //     setOperationSuccess(false); // Reset success state on error
-  //     return; // Exit early if there's an error
-  //   }
+      toast.error(errorMessage);
+      setOperationSuccess(false); // Reset success state on error
+      return; // Exit early if there's an error
+    }
 
-  //   // Handle success messages
-  //   if (isSuccess && operationSuccess) {
-  //     setIsOpen(false);
-  //     setEdit(false);
-  //     toast.success("Vendor added successfully");
-  //     setOperationSuccess(false); // Reset success state after handling success
-  //   } else if (update_success && operationSuccess) {
-  //     setIsOpen(false);
-  //     setEdit(false);
-  //     toast.success("Vendor updated successfully");
-  //     setOperationSuccess(false); // Reset success state after handling success
-  //   }
+    // Handle success messages
+    if (isSuccess && operationSuccess) {
+      setIsOpen(false);
+      setEdit(false);
+      toast.success("Customer added successfully");
+      setOperationSuccess(false); // Reset success state after handling success
+    } else if (update_success && operationSuccess) {
+      setIsOpen(false);
+      setEdit(false);
+      toast.success("Customer updated successfully");
+      setOperationSuccess(false); // Reset success state after handling success
+    }
 
-  //   // Reset edit state if the popover is closed
-  //   if (!isOpen) {
-  //     setEdit(false);
-  //   }
-  // }, [error, isSuccess, isOpen, setEdit, operationSuccess, update_error, update_success]);
+    // Reset edit state if the popover is closed
+    if (!isOpen) {
+      setEdit(false);
+    }
+  }, [error, isSuccess, isOpen, setEdit, operationSuccess, update_error, update_success]);
 
 
   return (
@@ -122,7 +111,7 @@ const Customer: React.FC = () => {
           open={isOpen}
           set_open={setIsOpen}
           components={
-            <Customer_from
+            <Customer_form 
               isLoading={isLoading || update_loading}
               edit={edit}
               open={isOpen}
