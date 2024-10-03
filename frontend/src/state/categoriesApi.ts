@@ -19,9 +19,10 @@ export const categorieApi = createApi({
   endpoints: (builder) => ({
     addNewCategorie: builder.mutation<any, categorie_form>({
       query: (data) => ({
-        url: "/category/add",
+        url: "/categorie/add",
         method: "POST",
         body: data,
+        formData: true,
       }),
     }),
   }),

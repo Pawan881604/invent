@@ -6,6 +6,7 @@ import { Button } from '@nextui-org/react';
 import { useAddNewCategorieMutation } from '@/state/categoriesApi';
 import { categorie_form } from '@/types/categorie_type';
 import toast from 'react-hot-toast';
+import { generate32BitUUID } from '@/lib/service/generate32BitUUID';
 
 const Category = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -13,7 +14,10 @@ const Category = () => {
     const [addNewCategorie, { error, isLoading, isSuccess }] = useAddNewCategorieMutation();
     const onSubmit = useCallback(
         async (data: categorie_form) => {
-            await addNewCategorie(data)
+         
+            const updated_data = { ...data, uuid: generate32BitUUID(), images: files };
+            console.log(updated_data)
+            await addNewCategorie(updated_data)
         },
         [addNewCategorie],
     )
