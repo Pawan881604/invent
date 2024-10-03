@@ -18,12 +18,26 @@ export const categorieApi = createApi({
   }),
   endpoints: (builder) => ({
     addNewCategorie: builder.mutation<any, categorie_form>({
-      query: (data) => ({
-        url: "/categorie/add",
-        method: "POST",
-        body: data,
-        formData: true,
-      }),
+      query: (data) =>{
+        const formData = new FormData();
+          console.log(data)
+        // Add files to formData
+        if (data.images) {
+          data.images.forEach((file:any) => formData.append("images", file)); // Assuming 'images' is an array of files
+        }
+
+        // Append other data fields
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("uuid", data.uuid);
+        formData.append("status", data.status);
+
+        return {
+          url: "/categorie/add",
+          method: "POST",
+          body: formData, // Use formData as body
+        };
+      }
     }),
   }),
 });

@@ -6,7 +6,7 @@ class CategorieController {
   constructor(private categorieService: CategorieService) {}
   add_new_customer = AsyncHandler.handle(
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log(req.file);
+      console.log(req.files);
       return res.status(201).json({
         success: true,
       });

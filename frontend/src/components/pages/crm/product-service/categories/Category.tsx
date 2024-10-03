@@ -14,7 +14,7 @@ const Category = () => {
     const [addNewCategorie, { error, isLoading, isSuccess }] = useAddNewCategorieMutation();
     const onSubmit = useCallback(
         async (data: categorie_form) => {
-         
+         console.log(files)
             const updated_data = { ...data, uuid: generate32BitUUID(), images: files };
             console.log(updated_data)
             await addNewCategorie(updated_data)
